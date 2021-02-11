@@ -4,7 +4,11 @@ from kmip.pie import objects
 from kmip.pie import client
 from kmip import enums
 
-c = ProxyKmipClient(hostname='10.80.243.165',port=5696,cert='/etc/pykmip/certs/client_certificate.pem',key='/etc/pykmip/certs/client_key.pem',ca='/etc/pykmip/certs/root_certificate.pem',username='root',password='P@ssw0rd',config='client',config_file='/etc/pykmip/server.conf')
+#from kmip.services.kmip_client import KMIPProxy
+
+    #kmip.services.kmip_client.KMIPProxy
+
+c = ProxyKmipClient(hostname='10.80.243.165',port=5696,cert='/etc/pykmip/certs/client_certificate.pem',key='/etc/pykmip/certs/client_key.pem',ca='/etc/pykmip/certs/root_certificate.pem',username='root',password='P@ssw0rd',config='client',config_file='server.conf')
 
 print("client")
 print(c)
@@ -156,11 +160,55 @@ def AsymmetricKey():
         print(c.destroy(key_id[1]))
 
 
+def AsymmetricKeyEC():
+    print("Perform AsymmetricKey Key OPERATION")
+    with c:
+        print("CREATE")
+        key_id = c.create_key_pair(
+            enums.CryptographicAlgorithm.EC,
+            operation_policy_name='default',
+            public_name='Test_EC_Public_Key',
+            public_usage_mask=[
+                enums.CryptographicUsageMask.VERIFY
+            ],
+            private_name='Test_EC_Private_Key',
+            private_usage_mask=[
+                enums.CryptographicUsageMask.SIGN
+            ]
+        )  
+
+        print("CREATED KEY ID ",key_id)
+        print("Index one ",key_id[0])
+        print("type ",type(key_id[0]))
+        
+        print("GET KEY")
+        print(c.get(key_id[0]))
+
+        print("GET KEY")
+        print(c.get(key_id[1]))
+        
+        print("GET KEY ATTRIBUTES [0]")
+        print(c.get_attributes(key_id[0]))
+        
+        print("GET KEY ATTRIBUTES [1]")
+        print(c.get_attributes(key_id[1]))
+
+        print("DELETE PUBLIC KEY")
+        print(c.destroy(key_id[0]))
+
+        print("DELETE PRIVATE KEY")
+        print(c.destroy(key_id[1]))
+
+
 def main():
     print("Hello World!")
     #SymmetricKey()
     print("NEXT RSA KEY CREATION")
     AsymmetricKey()
+
+    # print(c.DiscoverVersions())
+
+    #kmip.services.kmip_client.KMIPProxy
 
 
 if __name__ == "__main__":
